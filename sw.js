@@ -1,8 +1,12 @@
-const CACHE = 'menu-eval-v1';
+const CACHE = 'menu-eval-v2';
 const FILES = ['/menu-eval/', '/menu-eval/index.html', '/menu-eval/manifest.json', '/menu-eval/icon-192.png', '/menu-eval/icon-512.png'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
+  e.waitUntil(
+    caches.open(CACHE).then(c =>
+      Promise.allSettled(FILES.map(f => c.add(f)))
+    )
+  );
   self.skipWaiting();
 });
 
