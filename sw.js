@@ -1,5 +1,5 @@
 const CACHE = 'menu-eval-v1';
-const FILES = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
+const FILES = ['/menu-eval/', '/menu-eval/index.html', '/menu-eval/manifest.json', '/menu-eval/icon-192.png', '/menu-eval/icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
