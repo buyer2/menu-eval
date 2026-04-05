@@ -1,0 +1,22 @@
+{
+  "name": "경주고기 메뉴평가",
+  "short_name": "메뉴평가",
+  "description": "경주고기 신메뉴 아이디어 빠른 평가 시스템",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9f9f9",
+  "theme_color": "#b91c1c",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

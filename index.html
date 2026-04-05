@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>경주고기 메뉴평가</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#b91c1c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="메뉴평가" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      background: #f9f9f9;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+    header {
+      background: #b91c1c;
+      color: white;
+      padding: 18px 20px;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .container { max-width: 480px; margin: 0 auto; padding: 20px 16px; }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.95rem; }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    input[type="text"]:focus { outline: none; border-color: #b91c1c; }
+
+    .item { margin-bottom: 18px; }
+    .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .item-label { font-weight: 600; font-size: 0.93rem; }
+    .item-score { font-size: 0.85rem; color: #888; }
+    .item-score span { font-weight: 700; color: #b91c1c; font-size: 1rem; }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #b91c1c;
+      height: 6px;
+    }
+    .range-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: #aaa; margin-top: 4px; }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: #b91c1c;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 1px;
+    }
+    .btn:active { background: #991b1b; }
+
+    .result {
+      display: none;
+      background: white;
+      border-radius: 12px;
+      padding: 24px 20px;
+      margin-top: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      text-align: center;
+    }
+    .result.show { display: block; }
+
+    .total-score { font-size: 3rem; font-weight: 800; margin: 8px 0; }
+    .verdict {
+      display: inline-block;
+      padding: 8px 24px;
+      border-radius: 20px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 12px 0 16px;
+    }
+    .go   { background: #dcfce7; color: #15803d; }
+    .cond { background: #fef9c3; color: #a16207; }
+    .stop { background: #fee2e2; color: #b91c1c; }
+
+    .breakdown { text-align: left; margin-top: 16px; border-top: 1px solid #eee; padding-top: 14px; }
+    .breakdown-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 0.9rem; color: #555; }
+    .breakdown-row span:last-child { font-weight: 700; color: #1a1a1a; }
+
+    .reset-btn {
+      margin-top: 16px;
+      width: 100%;
+      padding: 12px;
+      background: #f3f4f6;
+      color: #555;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .history-section { margin-top: 24px; }
+    .history-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; color: #555; }
+    .history-item {
+      background: white;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .history-name { font-weight: 600; font-size: 0.95rem; }
+    .history-meta { font-size: 0.8rem; color: #aaa; margin-top: 2px; }
+    .history-badge {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+    .no-history { text-align: center; color: #bbb; font-size: 0.9rem; padding: 16px 0; }
+  </style>
+</head>
+<body>
+  <header>경주고기 메뉴평가 시스템</header>
+  <div class="container">
+
+    <div class="card">
+      <label for="menuName">메뉴명</label>
+      <input type="text" id="menuName" placeholder="예: 통삼겹 된장국밥" />
+    </div>
+
+    <div class="card">
+      <div class="item">
+        <div class="item-header">
+          <span class="item-label">① 원가 안정성</span>
+          <span class="item-score"><span id="v1">10</span>점 / 25점</span>
+        </div>
+        <input type="range" id="s1" min="0" max="25" value="10" oninput="update('v1',this.value)">
+        <div class="range-labels"><span>원가율 높음</span><span>원가율 낮고 안정</span></div>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <span class="item-label">② 주방 부하</span>
+          <span class="item-score"><span id="v2">10</span>점 / 20점</span>
+        </div>
+        <input type="range" id="s2" min="0" max="20" value="10" oninput="update('v2',this.value)">
+        <div class="range-labels"><span>조리 복잡·시간 多</span><span>단순·빠름</span></div>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <span class="item-label">③ 셀프바 연계성</span>
+          <span class="item-score"><span id="v3">10</span>점 / 20점</span>
+        </div>
+        <input type="range" id="s3" min="0" max="20" value="10" oninput="update('v3',this.value)">
+        <div class="range-labels"><span>연계 어려움</span><span>셀프바와 잘 맞음</span></div>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <span class="item-label">④ 관광객 적합성</span>
+          <span class="item-score"><span id="v4">10</span>점 / 20점</span>
+        </div>
+        <input type="range" id="s4" min="0" max="20" value="10" oninput="update('v4',this.value)">
+        <div class="range-labels"><span>관광객 낯섦</span><span>첫 방문에도 자연스러움</span></div>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <span class="item-label">⑤ 젊은층·낮시간 매출 기여</span>
+          <span class="item-score"><span id="v5">8</span>점 / 15점</span>
+        </div>
+        <input type="range" id="s5" min="0" max="15" value="8" oninput="update('v5',this.value)">
+        <div class="range-labels"><span>기여 없음</span><span>젊은층 유입·낮시간 견인</span></div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="evaluate()">평가하기</button>
+
+    <div class="result" id="result">
+      <div style="font-size:0.9rem;color:#888;">총점</div>
+      <div class="total-score" id="totalScore">0</div>
+      <div class="verdict" id="verdict"></div>
+      <div id="comment" style="font-size:0.9rem;color:#555;line-height:1.6;"></div>
+      <div class="breakdown">
+        <div class="breakdown-row"><span>① 원가 안정성</span><span id="b1"></span></div>
+        <div class="breakdown-row"><span>② 주방 부하</span><span id="b2"></span></div>
+        <div class="breakdown-row"><span>③ 셀프바 연계성</span><span id="b3"></span></div>
+        <div class="breakdown-row"><span>④ 관광객 적합성</span><span id="b4"></span></div>
+        <div class="breakdown-row"><span>⑤ 젊은층·낮시간 기여</span><span id="b5"></span></div>
+      </div>
+      <button class="reset-btn" onclick="reset()">초기화</button>
+    </div>
+
+    <div class="history-section">
+      <div class="history-title">최근 평가 기록</div>
+      <div id="historyList"></div>
+    </div>
+
+  </div>
+
+  <script>
+    function update(id, val) {
+      document.getElementById(id).textContent = val;
+    }
+
+    function evaluate() {
+      const name = document.getElementById('menuName').value.trim();
+      if (!name) { alert('메뉴명을 입력해 주세요.'); return; }
+
+      const scores = [
+        +document.getElementById('s1').value,
+        +document.getElementById('s2').value,
+        +document.getElementById('s3').value,
+        +document.getElementById('s4').value,
+        +document.getElementById('s5').value,
+      ];
+      const total = scores.reduce((a, b) => a + b, 0);
+
+      document.getElementById('totalScore').textContent = total;
+      ['b1','b2','b3','b4','b5'].forEach((id, i) => {
+        document.getElementById(id).textContent = scores[i] + '점';
+      });
+
+      const verdict = document.getElementById('verdict');
+      const comment = document.getElementById('comment');
+      verdict.className = 'verdict';
+
+      if (total >= 80) {
+        verdict.textContent = '즉시 진행';
+        verdict.classList.add('go');
+        comment.textContent = '운영 조건을 충족합니다. 시식 테스트로 넘어가세요.';
+      } else if (total >= 60) {
+        verdict.textContent = '조건부 진행';
+        verdict.classList.add('cond');
+        comment.textContent = '일부 항목 보완 후 재평가하거나, 소규모 테스트로 검증하세요.';
+      } else {
+        verdict.textContent = '폐기';
+        verdict.classList.add('stop');
+        comment.textContent = '현재 운영 구조에 맞지 않습니다. 아이디어 재검토가 필요합니다.';
+      }
+
+      document.getElementById('result').classList.add('show');
+
+      const history = JSON.parse(localStorage.getItem('menuHistory') || '[]');
+      history.unshift({ name, total, verdict: verdict.textContent, date: new Date().toLocaleDateString('ko-KR') });
+      if (history.length > 20) history.pop();
+      localStorage.setItem('menuHistory', JSON.stringify(history));
+      renderHistory();
+
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function reset() {
+      ['s1','s2','s3','s4'].forEach(id => {
+        document.getElementById(id).value = 10;
+      });
+      document.getElementById('s5').value = 8;
+      ['v1','v2','v3','v4'].forEach(id => document.getElementById(id).textContent = 10);
+      document.getElementById('v5').textContent = 8;
+      document.getElementById('menuName').value = '';
+      document.getElementById('result').classList.remove('show');
+    }
+
+    function renderHistory() {
+      const history = JSON.parse(localStorage.getItem('menuHistory') || '[]');
+      const el = document.getElementById('historyList');
+      if (!history.length) {
+        el.innerHTML = '<div class="no-history">아직 평가 기록이 없습니다.</div>';
+        return;
+      }
+      el.innerHTML = history.map(h => {
+        const cls = h.total >= 80 ? 'go' : h.total >= 60 ? 'cond' : 'stop';
+        return `<div class="history-item">
+          <div>
+            <div class="history-name">${h.name}</div>
+            <div class="history-meta">${h.date}</div>
+          </div>
+          <div>
+            <div class="history-badge ${cls}">${h.total}점</div>
+            <div style="font-size:0.78rem;text-align:center;margin-top:3px;color:#888;">${h.verdict}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    renderHistory();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
